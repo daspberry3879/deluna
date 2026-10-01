@@ -1,131 +1,167 @@
-# Deluna
+# Deluna — Wholesale Beauty, One Item at a Time
 
-**Korean skincare at wholesale prices — even for one item.**
+> Group buying for Korean skincare on Solana: buyers fill a manufacturer's batch together, purchase from just one unit at a fixed wholesale price, and pay through an on-chain escrow contract.
 
-Deluna is a group-buying MVP built for Solana Create. Buyers collectively fill a manufacturer's batch, while a custom Solana program holds product payments and enforces campaign rules.
+[Live Demo](https://deluna-app.vercel.app) · [Docs](docs/development.md) · [Solana Program](https://explorer.solana.com/address/27yt3x7MiqctpH7y6DPybenLvruJkGmSrZxxkZitQu7V?cluster=devnet)
 
-**[Live demo](https://deluna-app.vercel.app)** · **[Solana program](https://explorer.solana.com/address/27yt3x7MiqctpH7y6DPybenLvruJkGmSrZxxkZitQu7V?cluster=devnet)**
+![Deluna live demo](docs/assets/deluna-demo.png)
 
-The demo runs on **Solana devnet** and uses test SOL only. KZT prices are illustrative product prices, not an exchange-rate conversion.
+---
 
-## How it works
+## Submission to Solana Create / Colosseum
 
-1. An approved manufacturer creates a campaign with a product, total batch size, fixed unit price, deadline, and provenance document hash.
-2. Buyers purchase any quantity from one unit to the remaining stock. Payment goes directly into the campaign's program-derived account (PDA).
-3. Once the batch sells out, buying closes and the manufacturer can claim the payout immediately.
-4. If the campaign expires without selling out, or the manufacturer cancels it before payout, each buyer can claim a refund. Early buyer withdrawal is not supported.
-5. Deluna creates a separate shipping invoice using actual weight and a fixed per-kilogram rate. The buyer pays through Solana before collection.
+Built as a working devnet MVP for the Solana Create workshop, with an initial focus on Almaty, Astana, and Shymkent, Kazakhstan.
 
-## Features
+| Name | Role | Contact |
+| --- | --- | --- |
+| daspberry3879 | Project maintainer | [GitHub](https://github.com/daspberry3879) |
 
-- Nine skincare products, nine open campaigns, and three completed demo campaigns.
-- Three test buyer wallets in each seeded open campaign, with roughly half the batch still available for a live purchase.
-- Phantom and Solflare wallet support.
-- Buyer orders, manufacturer campaign management, and Deluna administration.
-- Separate on-chain shipping payments and shipment status tracking.
-- Batch verification using an approved issuer wallet and a SHA-256 document hash.
-- Analytics computed from on-chain purchases: units, unique buyers, payments, and completed campaigns.
-- English interface with responsive pink glass styling and KZT-first product prices.
-- Collection cities: Almaty, Astana, and Shymkent.
+**Status:** Live demo deployed on Vercel; custom program deployed on Solana devnet. The walkthrough video, presentation, and submission URL have not yet been published.
 
-## Try the demo
+---
 
-1. Open the live demo and connect a wallet with devnet SOL.
-2. Open **Catalog**, choose **Join group buy**, and select a quantity and collection city.
-3. Accept the campaign terms and sign the payment. The order appears under **My orders** after confirmation.
-4. Open **Provenance** and verify a batch such as `DL-101`. Download its document or compare an uploaded JSON file against the on-chain hash.
-5. Open **Analytics** to inspect activity from confirmed devnet transactions.
+## Problem and Solution
 
-The connected wallet determines access to the manufacturer and administrator dashboards. All wallets need test SOL for transaction fees and account rent, in addition to product payments.
+### 1. Wholesale Access Requires Large Orders
 
-## Development
+- **Problem:** Individual shoppers and small stores may not be able to meet a manufacturer's batch size alone.
+- **Deluna:** Buyers combine their demand into one batch. Each participant can buy from one unit up to the remaining stock, at the same fixed unit price.
 
-Requires Node.js 22.13 or later.
+### 2. Group Purchases Depend on Manual Payment Coordination
 
-```sh
-npm ci
-npm run dev
-```
+- **Problem:** Participants need to know where their money is held and what happens if a group order does not fill.
+- **Deluna:** The Solana program holds product payments, enables the factory payout only when the full batch sells out, and allows individual refunds after cancellation or an unfilled deadline. Refunds after a factory payout are not guaranteed by the contract.
 
-Build for Vercel:
+### 3. Product Origin Is Difficult to Check
 
-```sh
-npm run build:vercel
-```
+- **Problem:** A product listing alone does not establish who issued its batch documentation or whether that document has changed.
+- **Deluna:** Approved manufacturer wallets register batch document hashes on-chain. Buyers can verify the issuer and compare documents using a batch code or QR. This verifies the record, not the physical authenticity of a product.
 
-`vercel.json` configures Next.js, `npm ci`, and the Vercel build command. The existing `npm run dev` and `npm run build` commands use Vinext for local preview and Sites-compatible builds.
+### 4. Final Shipping Costs Are Known Later
 
-The frontend connects to the deployed devnet program. No private keys or environment variables are required to run the website. On mobile, open it inside a supported wallet's browser.
+- **Problem:** Cargo shipping costs depend on the weight measured when goods leave the factory.
+- **Deluna:** Product payment and shipping payment are separate. Deluna issues a weight-based invoice after the batch is paid out; the buyer pays it through Solana before collection.
+
+---
+
+## Why Solana
+
+- **Shared payment state:** Buyers, manufacturers, and Deluna read the same campaign and order accounts rather than relying on manually updated payment records.
+- **Program-enforced rules:** A custom Rust program checks stock limits, payout eligibility, refund eligibility, and administrator permissions.
+- **Atomic updates:** A purchase transfers SOL and updates the order together. A shipping payment transfers funds and marks its invoice paid in the same transaction.
+- **Wallet-based participation:** Phantom and Solflare provide transaction signing. Public account records make the demo's payment activity independently inspectable.
+
+Solana is the payment and campaign-state core of the MVP. The current deployment uses **devnet test SOL only**.
+
+---
+
+## Summary of Features
+
+- Nine Korean skincare products with KZT-first illustrative pricing.
+- Nine seeded open campaigns, initially with three test buyers each, plus three completed demo campaigns.
+- Purchases from one unit, with immediate on-chain payment into campaign escrow.
+- Factory payout after the full batch sells out.
+- Individual refunds for cancelled or expired, unfilled campaigns.
+- Separate shipping invoices and payments based on actual weight.
+- Batch document verification through an approved issuer and SHA-256 hash.
+- Buyer orders, manufacturer tools, and a Deluna administrator dashboard.
+- Analytics based on on-chain units purchased, unique wallets, and payments.
+- Responsive English interface with pink glass styling.
+
+---
+
+## Tech Stack
+
+| Layer | Technology |
+| --- | --- |
+| On-chain program | Rust · native `solana-program` |
+| Client / Wallets | TypeScript · `@solana/web3.js` · Phantom · Solflare |
+| Frontend | React · Next.js · Tailwind CSS · shadcn components |
+| Local / Alternate build | Vinext · Vite |
+| Provenance | SHA-256 document hashing · QR codes |
+| Hosting | Vercel |
+| Validation | Local Solana validator integration tests · confirmed devnet transactions |
+
+---
 
 ## Architecture
 
-| File | Purpose |
-| --- | --- |
-| `components/deluna-app.tsx` | Catalog, checkout, orders, provenance, analytics, and role dashboards |
-| `lib/chain.ts` | Solana account decoding, instructions, wallet transactions, and document hashing |
-| `lib/products.ts` | Product catalog and illustrative prices |
-| `contract/src/lib.rs` | Native Solana program and payment rules |
-| `scripts/seed-devnet.mjs` | Seed confirmed demo transactions and open campaigns |
-| `scripts/handoff-admin.mjs` | Transfer application administration to the user's wallet |
-
-The UI uses React, Next.js/Vinext, Tailwind CSS, and shadcn components. Payments use a custom native Rust Solana program and `@solana/web3.js`.
-
-## Deployed addresses
-
-| Role | Public address |
-| --- | --- |
-| Program | `27yt3x7MiqctpH7y6DPybenLvruJkGmSrZxxkZitQu7V` |
-| Application administrator | `AbesS5NYnf41BJQoYEAAoMGqGCQaje1ioL3QtZH1ZzFv` |
-| Test manufacturer | `AgnZPxLk9PEncJYakVqhEVkcGwnbXgWXybiggYkCkVgE` |
-| Bootstrap deployer | `J12aDooXwAApciyNSXBYhncyPS9auuxxCBmxFKZLSM1b` |
-
-Application administration has been transferred to the user wallet. Program upgrade authority is a separate permission and is not transferred by the application handoff instruction.
-
-Test keypairs are stored only in the ignored `.secrets/` directory. They are not included in GitHub, frontend code, or Vercel uploads. Never use these test keys for real funds. Cloning this repository does not provide the signing keys for the deployed demo.
-
-## Contract build and validation
-
-```sh
-node scripts/compile-contract.mjs
-node --experimental-strip-types scripts/test-contract.mjs
+```mermaid
+flowchart TD
+    Buyer[Buyer wallet] --> UI[Deluna web app]
+    Factory[Approved factory wallet] --> UI
+    Admin[Deluna admin wallet] --> UI
+    UI -->|Signed transactions and account reads| Program[Solana program]
+    Program --> Config[Admin and approved factories]
+    Program --> Campaign[Campaign PDA: stock, deadline, escrow, document hash]
+    Program --> Order[Order PDA: quantity, payment, shipping status]
+    Campaign -->|Full batch sold: factory claims payout| Factory
+    Campaign -->|Cancelled or expired unfilled: buyer claims refund| Buyer
+    Buyer -->|Separate shipping payment through program| Admin
+    Document[Batch document / QR] -->|Compare SHA-256 with campaign record| UI
 ```
 
-Compilation sends only `contract/src/lib.rs` to the Solana Playground build API and saves the compiled ELF and build log. The build UUID is reused.
+The program address is [`27yt3x7MiqctpH7y6DPybenLvruJkGmSrZxxkZitQu7V`](https://explorer.solana.com/address/27yt3x7MiqctpH7y6DPybenLvruJkGmSrZxxkZitQu7V?cluster=devnet).
 
-Tests default to a local validator at `http://127.0.0.1:8899` and require appropriately funded local test keypairs. They cover factory approval, single-unit purchases, overselling, premature or unauthorized payouts, duplicate payouts, cancellations, refunds, expired campaigns, shipping invoices, duplicate shipping payments, status permissions, and administrator transfers. Test campaigns use SKU `0` and are excluded from the storefront. Local validation results are recorded in `contract/test-results.json`; seeded devnet campaign records are in `contract/seed-results.json`.
+See the [development guide](docs/development.md#architecture) for source files, deployed addresses, contract checks, and demo seeding instructions.
 
-On Windows, `solana-test-validator --log` avoids the log symlink requirement. Validator snapshots may still require additional Windows permissions.
+---
 
-## Demo seeding
+## Quick Start
 
-For a fresh deployment with the matching bootstrap and factory keypairs:
+**Prerequisites:** Node.js 22.13+ and npm. A Phantom or Solflare wallet with devnet SOL is needed to make purchases. No private keys or environment variables are needed to run the frontend.
 
 ```sh
-node --experimental-strip-types scripts/seed-devnet.mjs
-node --experimental-strip-types scripts/handoff-admin.mjs
+# Clone the repository
+git clone https://github.com/daspberry3879/deluna.git
+cd deluna
+
+# Install dependencies
+npm ci
+
+# Start the local frontend
+npm run dev
+
+# Build for Vercel
+npm run build:vercel
 ```
 
-The seed script creates three completed campaigns, executes factory payouts and separate shipping payments, then creates nine open campaigns with three test buyers each. It checks existing account state before creating orders and paces RPC requests. Run it before transferring administration: after handoff, the bootstrap wallet can no longer approve factories or create shipping invoices.
+To try the hosted version, open the [live demo](https://deluna-app.vercel.app), connect a wallet, select **Catalog → Join group buy**, choose a quantity, accept the terms, and sign the payment. The confirmed purchase appears in **My orders**.
 
-The handoff script approves the user wallet as a demo manufacturer, provides a small devnet balance when needed, and transfers Deluna administration.
+Contract validation requires a local validator and local test keypairs. See [contract build and validation](docs/development.md#contract-build-and-validation) before running the test scripts. Cloning the repository does not provide the signing keys for the deployed demo.
 
-## Demo limitations
+---
 
-- Test SOL only. There are no verified real suppliers, shipments, or brand partnerships.
-- Provenance verification checks the issuer and document integrity. It does not prove physical authenticity, quality, or product safety. QR codes can be copied.
-- Existing batch documents retain their original Russian canonical text because their exact hashes are already recorded on-chain. Translating those documents would invalidate verification. The website's verification interface is in English.
-- Demo documents are generated deterministically and contain a fixed illustrative expiry date.
-- After a factory payout, the contract does not guarantee a refund. Refunds return the product payment, not transaction fees or order-account rent.
-- Each buyer has one order account per campaign. Additional purchases increase its quantity; its collection city cannot be changed.
-- Wallet addresses, collection city, and transaction activity are public. Names, phone numbers, and delivery addresses are not collected.
-- The seeded shipping rate is `0.0001 test SOL/kg`. Invoices round up to the nearest lamport and cannot be replaced after creation.
-- Public devnet RPC endpoints may rate-limit requests. The interface reports failures rather than substituting simulated transaction results.
-- The contract has not undergone an independent security audit and is intended for devnet only.
+## Roadmap
 
-## Product images
+- [x] Deploy the custom payment and campaign program on Solana devnet.
+- [x] Implement escrow purchases, factory payouts, and conditional refunds.
+- [x] Add separate shipping invoices and on-chain shipping payments.
+- [x] Add batch document verification and role-based dashboards.
+- [x] Seed completed and open demo campaigns with test buyers.
+- [x] Publish the English MVP on Vercel.
+- [ ] Validate demand with shoppers, small stores, and group-buy organizers in Kazakhstan.
+- [ ] Onboard real manufacturers and establish document and product verification procedures.
+- [ ] Pilot cargo logistics and shipment tracking.
+- [ ] Record the walkthrough and complete the hackathon submission materials.
+- [ ] Complete an independent security review before considering mainnet and real payments.
 
-Product images are linked from official brand catalogs for demonstration, without implying a partnership. Individual source URLs are included in `lib/products.ts`.
+---
 
-- [Beauty of Joseon](https://beautyofjoseon.com/)
-- [SKIN1004](https://www.skin1004.com/)
-- [Anua](https://anua.com/)
+## Resources
+
+- [Live Application](https://deluna-app.vercel.app)
+- [Source Code](https://github.com/daspberry3879/deluna)
+- [Development Documentation](docs/development.md)
+- [Solana Devnet Program](https://explorer.solana.com/address/27yt3x7MiqctpH7y6DPybenLvruJkGmSrZxxkZitQu7V?cluster=devnet)
+- [Local Contract Validation Results](contract/test-results.json)
+- [Seeded Devnet Campaigns](contract/seed-results.json)
+- **Project Presentation / Video Demo / Colosseum Submission:** Not yet published.
+
+**Demo scope:** Test SOL only. Brand partnerships, physical product authenticity, and actual shipments are not verified. KZT prices are illustrative, not an exchange-rate conversion. Read the [demo limitations](docs/development.md#demo-limitations) for the full scope.
+
+---
+
+## License
+
+No project license has been specified yet. A license decision is pending.
