@@ -1,0 +1,5 @@
+{
+  "stderr": "Error: Function _ZN117_$LT$switchboard_solana..attestation_program..accounts..function..FunctionAccountData$u20$as$u20$core..fmt..Debug$GT$3fmt17h1cf3d7193dd388ccE Stack offset of 4345 exceeded max offset of 4096 by 249 bytes, please minimize large stack variables\nError: Function _ZN86_$LT$switchboard_v2..aggregator..AggregatorAccountData$u20$as$u20$core..fmt..Debug$GT$3fmt17h4eb30e10ec71a583E Stack offset of 4128 exceeded max offset of 4096 by 32 bytes, please minimize large stack variables\n   Compiling solpg v0.1.0 (/home/solpg/programs)\n    Finished release [optimized] target(s) in 3.15s\n",
+  "uuid": "9c267777-3e7a-4572-87cb-96fd29fb44a6",
+  "idl": null
+}

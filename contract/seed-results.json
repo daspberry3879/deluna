@@ -1,0 +1,98 @@
+{
+  "network": "devnet",
+  "program": "27yt3x7MiqctpH7y6DPybenLvruJkGmSrZxxkZitQu7V",
+  "testBuyers": [
+    "4fR8qqbbY1VQcf5NRtxhx52fY4rGpBn5rvTtov1Epm7n",
+    "CqaSagDwh1nxjhN3kNUhprKF1oyh4uj4pQkhy8euAdjx",
+    "54jhjfFDigtaQ5vPNW7vJzcAG5XdePqySKa6tGuwY8X2"
+  ],
+  "records": [
+    {
+      "id": 1,
+      "address": "FnVKydRbC4aAFUXspN3fmtNNaTmUgSfPb7Tv9NB2h1F8",
+      "status": "paid_out"
+    },
+    {
+      "id": 2,
+      "address": "CDsMFGyXjkJX3xKbFHBApuPTS5ZUtT9QiQ2sXaX79Cny",
+      "status": "paid_out"
+    },
+    {
+      "id": 3,
+      "address": "C68izNJEehTb4YzwtdVUY94cEBj4eb7D9W3HHzomdvsC",
+      "status": "paid_out"
+    },
+    {
+      "id": 101,
+      "address": "6Nedb5vUh5D6RS3BpVKaknNjDNhePrJx5QDPfyjr6kCR",
+      "status": "open",
+      "sold": 490,
+      "target": 1000,
+      "buyers": 3
+    },
+    {
+      "id": 102,
+      "address": "4jykcmtuvDpdfg8ccs8BzBykgPPquL4JDsybZ3BfLicg",
+      "status": "open",
+      "sold": 245,
+      "target": 500,
+      "buyers": 3
+    },
+    {
+      "id": 103,
+      "address": "CwLafCpMJZkLF2NGbgWg5xTggVuVZZ4nkQBfzvQTzX3t",
+      "status": "open",
+      "sold": 392,
+      "target": 800,
+      "buyers": 3
+    },
+    {
+      "id": 104,
+      "address": "B9gv8zpGrfWNeBf9noAGwwfc1d6WSW6Y7bRf7myyX7Qt",
+      "status": "open",
+      "sold": 196,
+      "target": 400,
+      "buyers": 3
+    },
+    {
+      "id": 105,
+      "address": "BfBAxqFQGMZjVkedmcMK8LMjq5ve3bdeJHtTPZ1nzJsY",
+      "status": "open",
+      "sold": 294,
+      "target": 600,
+      "buyers": 3
+    },
+    {
+      "id": 106,
+      "address": "A4qZHLWdcDAjQGwUrWMDezQmaCGikN1YSE2avL75Kr6n",
+      "status": "open",
+      "sold": 343,
+      "target": 700,
+      "buyers": 3
+    },
+    {
+      "id": 107,
+      "address": "3ZUkcyfWyc7wFpdyobaxAFFLrMZ87xSwkB4g69CkLhQT",
+      "status": "open",
+      "sold": 245,
+      "target": 500,
+      "buyers": 3
+    },
+    {
+      "id": 108,
+      "address": "4TGyRY4tyzgTuJjHezqWrxQ1yFWwrA4w9PmcGELEGEbb",
+      "status": "open",
+      "sold": 219,
+      "target": 450,
+      "buyers": 3
+    },
+    {
+      "id": 109,
+      "address": "GfRU1AdSDgZcfVuRdzjFZwFc8NCcucM7kcHK3E7GjuHN",
+      "status": "open",
+      "sold": 294,
+      "target": 600,
+      "buyers": 3
+    }
+  ]
+}
