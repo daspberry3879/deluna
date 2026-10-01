@@ -22,6 +22,12 @@ npm run build
 
 Node >=22.13. Клиент поддерживает Phantom и Solflare. На телефоне открыть сайт во встроенном браузере кошелька. Основные файлы: `components/deluna-app.tsx`, `lib/chain.ts`, `contract/src/lib.rs`.
 
+## Публикация на Vercel
+
+Импортировать GitHub-репозиторий в Vercel с корневой папкой проекта. `vercel.json` выбирает Next.js, установку `npm ci` и сборку `npm run build:vercel`. Эта сборка проверена отдельно от Vinext/Sites; существующие `dev` и `build` сохранены для локального предпросмотра и Sites.
+
+Приложение обращается к уже развёрнутому контракту Solana devnet. Приватные ключи и переменные окружения для работы сайта не нужны. `.vercelignore` и `.gitignore` исключают тестовые ключи, локальные ledger и служебные артефакты.
+
 ## Программа и кошельки
 
 - Программа: `27yt3x7MiqctpH7y6DPybenLvruJkGmSrZxxkZitQu7V`.

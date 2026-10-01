@@ -1,0 +1,12 @@
+.secrets
+.local-ledger*
+.git
+.wrangler
+.sites-runtime
+.agents
+.codex
+node_modules
+dist
+outputs
+contract
+*.tsbuildinfo
