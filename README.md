@@ -1,89 +1,131 @@
 # Deluna
 
-Русский MVP совместных закупок корейской косметики для Solana Create. Интерфейс: React/Vinext, розовое матовое стекло. Денежная логика: собственная программа Solana, только devnet.
+**Korean skincare at wholesale prices — even for one item.**
 
-## Согласованный продукт
+Deluna is a group-buying MVP built for Solana Create. Buyers collectively fill a manufacturer's batch, while a custom Solana program holds product payments and enforces campaign rules.
 
-- Допущенный завод создаёт закупку: один товар, размер партии, фиксированная цена, дедлайн, хеш документа происхождения.
-- Покупатель приобретает от одной единицы до доступного остатка. SOL хранятся в PDA закупки.
-- Полный выкуп немедленно закрывает приём заказов и открывает выплату заводу. Завод подписывает вывод.
-- Неполный сбор после дедлайна или отмена заводом до выплаты открывают индивидуальные возвраты. Раннего выхода нет.
-- Deluna выставляет доставку по фактическому весу. Отдельная транзакция передаёт оплату администратору и атомарно отмечает счёт оплаченным.
-- QR/код партии открывает проверку допущенного издателя и SHA-256 канонического JSON документа.
-- Аналитика считает количество единиц, уникальных кошельков и объём оплаты из данных программы. Это тестовая активность, не реальные продажи.
+**[Live demo](https://deluna-app.vercel.app)** · **[Solana program](https://explorer.solana.com/address/27yt3x7MiqctpH7y6DPybenLvruJkGmSrZxxkZitQu7V?cluster=devnet)**
 
-## Запуск
+The demo runs on **Solana devnet** and uses test SOL only. KZT prices are illustrative product prices, not an exchange-rate conversion.
+
+## How it works
+
+1. An approved manufacturer creates a campaign with a product, total batch size, fixed unit price, deadline, and provenance document hash.
+2. Buyers purchase any quantity from one unit to the remaining stock. Payment goes directly into the campaign's program-derived account (PDA).
+3. Once the batch sells out, buying closes and the manufacturer can claim the payout immediately.
+4. If the campaign expires without selling out, or the manufacturer cancels it before payout, each buyer can claim a refund. Early buyer withdrawal is not supported.
+5. Deluna creates a separate shipping invoice using actual weight and a fixed per-kilogram rate. The buyer pays through Solana before collection.
+
+## Features
+
+- Nine skincare products, nine open campaigns, and three completed demo campaigns.
+- Three test buyer wallets in each seeded open campaign, with roughly half the batch still available for a live purchase.
+- Phantom and Solflare wallet support.
+- Buyer orders, manufacturer campaign management, and Deluna administration.
+- Separate on-chain shipping payments and shipment status tracking.
+- Batch verification using an approved issuer wallet and a SHA-256 document hash.
+- Analytics computed from on-chain purchases: units, unique buyers, payments, and completed campaigns.
+- English interface with responsive pink glass styling and KZT-first product prices.
+- Collection cities: Almaty, Astana, and Shymkent.
+
+## Try the demo
+
+1. Open the live demo and connect a wallet with devnet SOL.
+2. Open **Catalog**, choose **Join group buy**, and select a quantity and collection city.
+3. Accept the campaign terms and sign the payment. The order appears under **My orders** after confirmation.
+4. Open **Provenance** and verify a batch such as `DL-101`. Download its document or compare an uploaded JSON file against the on-chain hash.
+5. Open **Analytics** to inspect activity from confirmed devnet transactions.
+
+The connected wallet determines access to the manufacturer and administrator dashboards. All wallets need test SOL for transaction fees and account rent, in addition to product payments.
+
+## Development
+
+Requires Node.js 22.13 or later.
 
 ```sh
-npm install
+npm ci
 npm run dev
-npm run build
 ```
 
-Node >=22.13. Клиент поддерживает Phantom и Solflare. На телефоне открыть сайт во встроенном браузере кошелька. Основные файлы: `components/deluna-app.tsx`, `lib/chain.ts`, `contract/src/lib.rs`.
+Build for Vercel:
 
-## Публикация на Vercel
+```sh
+npm run build:vercel
+```
 
-Импортировать GitHub-репозиторий в Vercel с корневой папкой проекта. `vercel.json` выбирает Next.js, установку `npm ci` и сборку `npm run build:vercel`. Эта сборка проверена отдельно от Vinext/Sites; существующие `dev` и `build` сохранены для локального предпросмотра и Sites.
+`vercel.json` configures Next.js, `npm ci`, and the Vercel build command. The existing `npm run dev` and `npm run build` commands use Vinext for local preview and Sites-compatible builds.
 
-Приложение обращается к уже развёрнутому контракту Solana devnet. Приватные ключи и переменные окружения для работы сайта не нужны. `.vercelignore` и `.gitignore` исключают тестовые ключи, локальные ledger и служебные артефакты.
+The frontend connects to the deployed devnet program. No private keys or environment variables are required to run the website. On mobile, open it inside a supported wallet's browser.
 
-## Программа и кошельки
+## Architecture
 
-- Программа: `27yt3x7MiqctpH7y6DPybenLvruJkGmSrZxxkZitQu7V`.
-- Тестовый deployer: `J12aDooXwAApciyNSXBYhncyPS9auuxxCBmxFKZLSM1b`.
-- Целевой администратор пользователя: `AbesS5NYnf41BJQoYEAAoMGqGCQaje1ioL3QtZH1ZzFv`.
-- Тестовый завод: `AgnZPxLk9PEncJYakVqhEVkcGwnbXgWXybiggYkCkVgE`.
+| File | Purpose |
+| --- | --- |
+| `components/deluna-app.tsx` | Catalog, checkout, orders, provenance, analytics, and role dashboards |
+| `lib/chain.ts` | Solana account decoding, instructions, wallet transactions, and document hashing |
+| `lib/products.ts` | Product catalog and illustrative prices |
+| `contract/src/lib.rs` | Native Solana program and payment rules |
+| `scripts/seed-devnet.mjs` | Seed confirmed demo transactions and open campaigns |
+| `scripts/handoff-admin.mjs` | Transfer application administration to the user's wallet |
 
-Наличие адресов в исходниках само по себе не означает, что программа развёрнута. Проверять состояние в devnet и файлы `contract/seed-results.json`, `contract/test-results.json`. Скрипт завершения настройки передаёт права пользователя только после подготовки трёх закупок.
+The UI uses React, Next.js/Vinext, Tailwind CSS, and shadcn components. Payments use a custom native Rust Solana program and `@solana/web3.js`.
 
-Секретные ключи находятся только в игнорируемой `.secrets/`, не публикуются и не передаются в интерфейс. Не использовать эти тестовые ключи с реальными средствами. Приложение не меняет настройки установленного Solana CLI.
+## Deployed addresses
 
-## Сборка и проверка программы
+| Role | Public address |
+| --- | --- |
+| Program | `27yt3x7MiqctpH7y6DPybenLvruJkGmSrZxxkZitQu7V` |
+| Application administrator | `AbesS5NYnf41BJQoYEAAoMGqGCQaje1ioL3QtZH1ZzFv` |
+| Test manufacturer | `AgnZPxLk9PEncJYakVqhEVkcGwnbXgWXybiggYkCkVgE` |
+| Bootstrap deployer | `J12aDooXwAApciyNSXBYhncyPS9auuxxCBmxFKZLSM1b` |
+
+Application administration has been transferred to the user wallet. Program upgrade authority is a separate permission and is not transferred by the application handoff instruction.
+
+Test keypairs are stored only in the ignored `.secrets/` directory. They are not included in GitHub, frontend code, or Vercel uploads. Never use these test keys for real funds. Cloning this repository does not provide the signing keys for the deployed demo.
+
+## Contract build and validation
 
 ```sh
 node scripts/compile-contract.mjs
 node --experimental-strip-types scripts/test-contract.mjs
 ```
 
-Сборка отправляет только `contract/src/lib.rs` в официальный API Solana Playground, сохраняет ELF и лог. UUID сборки переиспользуется. Возможны предупреждения о неиспользуемых зависимостях инфраструктуры Playground; работоспособность ELF проверяется исполнением.
+Compilation sends only `contract/src/lib.rs` to the Solana Playground build API and saves the compiled ELF and build log. The build UUID is reused.
 
-Тесты по умолчанию используют локальный RPC `http://127.0.0.1:8899`. Для devnet явно задать `DELUNA_TEST_RPC=https://api.devnet.solana.com`. Сценарии проверяют: допуск заводов, покупку одной единицы, превышение остатка, раннюю/чужую/повторную выплату, отмену, возврат, повторный возврат, истечение срока, счёт доставки, повторную оплату, права на статусы и передачу администрации. Тестовые кампании используют SKU=0 и не показываются в витрине.
+Tests default to a local validator at `http://127.0.0.1:8899` and require appropriately funded local test keypairs. They cover factory approval, single-unit purchases, overselling, premature or unauthorized payouts, duplicate payouts, cancellations, refunds, expired campaigns, shipping invoices, duplicate shipping payments, status permissions, and administrator transfers. Test campaigns use SKU `0` and are excluded from the storefront. Local validation results are recorded in `contract/test-results.json`; seeded devnet campaign records are in `contract/seed-results.json`.
 
-На Windows для локального валидатора используется `--log`, чтобы не создавать символьную ссылку журнала. Создание снимков валидатора требует дополнительных прав Windows; это ограничение среды, не программы.
+On Windows, `solana-test-validator --log` avoids the log symlink requirement. Validator snapshots may still require additional Windows permissions.
 
-## Три демонстрационные закупки
+## Demo seeding
 
-После деплоя выполнить `node --experimental-strip-types scripts/seed-devnet.mjs`. Он создаёт три закупки с документами, оплачивает всю партию двумя отдельными тестовыми покупателями, выполняет выплату заводу и отдельную оплату доставки. Неуспешные закупки не добавляются в презентационную витрину. Повторный запуск сверяет существующее состояние.
+For a fresh deployment with the matching bootstrap and factory keypairs:
 
-`node --experimental-strip-types scripts/handoff-admin.mjs` допускает пользовательский кошелёк как производителя для презентации и передаёт ему управление Deluna. После этого bootstrap-кошелёк теряет права администратора программы. Upgrade authority программы — отдельное полномочие; передаётся пользователю отдельно после проверки деплоя.
+```sh
+node --experimental-strip-types scripts/seed-devnet.mjs
+node --experimental-strip-types scripts/handoff-admin.mjs
+```
 
-## Ограничения демо
+The seed script creates three completed campaigns, executes factory payouts and separate shipping payments, then creates nine open campaigns with three test buyers each. It checks existing account state before creating orders and paces RPC requests. Run it before transferring administration: after handoff, the bootstrap wallet can no longer approve factories or create shipping invoices.
 
-- Только тестовые SOL. Нет реальных поставщиков, отправлений или подтверждённых отношений с брендами.
-- Происхождение: проверяется авторство on-chain записи и соответствие документа; не физическая подлинность, качество или безопасность продукта. QR можно копировать.
-- Документ демо генерируется детерминированно из параметров кампании, содержит явную отметку и фиксированную демонстрационную дату срока годности.
-- После выплаты заводу возврат не гарантирован программой. Возвращается оплата товара; сетевые комиссии и рента за создание записи заказа не возвращаются.
-- Один заказ на покупателя в кампании, дополнительные покупки увеличивают его количество. Город такого заказа не меняется.
-- Адреса кошельков, город и активность публичны в блокчейне; имена, телефоны и адреса доставки не собираются.
-- Тариф фиксируется при инициализации, в тестовой конфигурации 0.0001 SOL/кг. Счёт округляется вверх до lamport и после выставления не меняется.
-- Публичный devnet RPC может ограничивать запросы. Интерфейс сообщает об ошибке; он не подменяет данные фиктивными результатами.
-- Смарт-контракт не проходил независимый аудит и предназначен для devnet.
+The handoff script approves the user wallet as a demo manufacturer, provides a small devnet balance when needed, and transfers Deluna administration.
 
-## Изображения
+## Demo limitations
 
-Изображения взяты с официальных товарных страниц и используются как иллюстрации товаров, без утверждения о партнёрстве:
+- Test SOL only. There are no verified real suppliers, shipments, or brand partnerships.
+- Provenance verification checks the issuer and document integrity. It does not prove physical authenticity, quality, or product safety. QR codes can be copied.
+- Existing batch documents retain their original Russian canonical text because their exact hashes are already recorded on-chain. Translating those documents would invalidate verification. The website's verification interface is in English.
+- Demo documents are generated deterministically and contain a fixed illustrative expiry date.
+- After a factory payout, the contract does not guarantee a refund. Refunds return the product payment, not transaction fees or order-account rent.
+- Each buyer has one order account per campaign. Additional purchases increase its quantity; its collection city cannot be changed.
+- Wallet addresses, collection city, and transaction activity are public. Names, phone numbers, and delivery addresses are not collected.
+- The seeded shipping rate is `0.0001 test SOL/kg`. Invoices round up to the nearest lamport and cannot be replaced after creation.
+- Public devnet RPC endpoints may rate-limit requests. The interface reports failures rather than substituting simulated transaction results.
+- The contract has not undergone an independent security audit and is intended for devnet only.
 
-- https://be.beautyofjoseon.com/products/relief-sun-rice-probiotics-spf50-pa-uk
-- https://www.skin1004.com/products/skin1004-madagascar-centella-ampoule
-- https://anua.com/products/heartleaf-77-soothing-toner
+## Product images
 
-## Сценарий показа
+Product images are linked from official brand catalogs for demonstration, without implying a partnership. Individual source URLs are included in `lib/products.ts`.
 
-1. Каталог: девять товаров. Витрина: три успешные и девять открытых закупок, по три тестовых покупателя в открытых закупках. Около половины каждой партии остаётся для демонстрационной покупки. Цена за единицу одинаковая для маленького и большого заказа.
-2. Происхождение: открыть DL-1, сверить издателя, скачать документ, проверить изменённый JSON — появится несовпадение.
-3. Аналитика: реальные агрегаты этих транзакций в devnet, переключение покупателя/производителя/Deluna зависит от кошелька.
-4. Подключить пользовательский кошелёк, открыть «Производителю», создать небольшую новую закупку и подписать её.
-5. Купить партию, получить выплату через кабинет производителя, выставить вес через Deluna и отдельно оплатить доставку в «Моих заказах».
-
-Для отдельных ролей можно допустить другой кошелёк завода. Все кошельки должны иметь тестовые SOL на оплату и ренту.
+- [Beauty of Joseon](https://beautyofjoseon.com/)
+- [SKIN1004](https://www.skin1004.com/)
+- [Anua](https://anua.com/)
